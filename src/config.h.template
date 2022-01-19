@@ -6,6 +6,13 @@
 #define WIFI_SSID "SSID"
 #define WIFI_PASS "PASS"
 
+#define K_p 0
+#define K_i 0
+#define K_d 0
+
+#define GEAR_RATIO 48
+#define WHEEL_O 11.5
+
 #define DO_SERVO D5
 #define DI_HALL D7
 #define AO_MOTOR_POW MOTOR_B_POW
