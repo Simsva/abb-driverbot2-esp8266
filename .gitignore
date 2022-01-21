@@ -3,3 +3,4 @@
 .ccls
 .ccls-cache/
 src/config.h
+src/endianness.h

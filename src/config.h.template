@@ -1,3 +1,4 @@
+// -*- mode: cpp; eval: (platformio-mode 1); -*-
 #ifndef CONFIG_H_
 #define CONFIG_H_
 
@@ -5,13 +6,11 @@
 
 #define WIFI_SSID "SSID"
 #define WIFI_PASS "PASS"
-
-#define K_p 0
-#define K_i 0
-#define K_d 0
+#define TCP_PORT 1337
 
 #define GEAR_RATIO 48
-#define WHEEL_O 11.5
+#define WHEEL_CIRCUMFERENCE 11.5
+#define MAGNET_ARM_C 2
 
 #define DO_SERVO D5
 #define DI_HALL D7

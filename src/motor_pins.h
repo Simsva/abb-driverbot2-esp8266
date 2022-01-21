@@ -1,3 +1,4 @@
+// -*- mode: cpp; eval: (platformio-mode 1); -*-
 #ifndef MOTOR_PINS_H_
 #define MOTOR_PINS_H_
 

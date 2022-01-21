@@ -1,0 +1,7 @@
+// -*- mode: cpp; eval: (platformio-mode 1); -*-
+#ifndef ENDIANNESS_H_
+#define ENDIANNESS_H_
+
+#define __BYTE_ORDER __LITTLE_ENDIAN
+
+#endif // ENDIANNESS_H_
