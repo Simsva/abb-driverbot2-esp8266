@@ -22,7 +22,7 @@ state s;
 packet p;
 int p_read = 0;
 
-double power = 0,
+double auto_power = 0,
        vp, vi, vd,
        speed = 0, pulse_per_second = 0,
        last_e = 0, e_sum=0;
@@ -60,7 +60,7 @@ void setup() {
 }
 
 void loop() {
-  if(timer_calc < micros()-1e5 && !(s.flags & STATE_MANUAL_CONTROL)) {
+  if(timer_calc < micros()-1e5) {
     delta_time = micros() - timer_calc;
     timer_calc = micros();
 
@@ -68,7 +68,7 @@ void loop() {
     last_pulse = pulse_count;
 
     // mm/s
-    speed = GEAR_RATIO*WHEEL_CIRCUMFERENCE*pulse_per_second/MAGNET_ARM_C;
+    speed = GEAR_RATIO*WHEEL_CIRCUMFERENCE*pulse_per_second/MAGNET_ARM_C * (auto_power < 0 ? -1 : 1);
     double e = s.auto_target_speed-speed;
     e_sum += e*delta_time;
 
@@ -77,14 +77,14 @@ void loop() {
     vd = s.kd/delta_time * (e-last_e);
     last_e = e;
 
-    power = constrain(power + vp + vi + vd, 0, 1023);
+    auto_power = constrain(auto_power + vp + vi + vd, -1023, 1023);
   }
 
   if(timer_info < millis()-99) {
-    // Serial.printf("[%8.4f] %llu count, %.3fms delta, %.3f pps, %.3fmm/s speed, %4d power\n", millis()/1000.0, pulse_count, delta_time/1e3, pulse_per_second, speed, power);
-    Serial.printf("plot: %llu,%f,%f,%f,%d,%f\n", pulse_count, delta_time/1e3, pulse_per_second, speed, (int)power, s.auto_target_speed);
-    Serial.printf("speed=%4d (%d) angle=%3d kp=%6.3f ki=%6.3f kd=%6.3f\n",
-                  s.manual_speed, s.manual_speed<0, s.manual_angle, s.kp, s.ki, s.kd);
+    Serial.printf("plot: %llu,%f,%f,%f,%d,%f\n",
+                  pulse_count, delta_time/1e3, pulse_per_second, speed, (int)auto_power, s.auto_target_speed);
+    Serial.printf("manual=%d speed=%4d (%d) angle=%3d kp=%6.3f ki=%6.3f kd=%6.3f\n",
+                  s.flags&STATE_MANUAL_CONTROL, s.manual_speed, s.manual_speed<0, s.manual_angle, s.kp, s.ki, s.kd);
     timer_info = millis();
   }
 
@@ -106,6 +106,7 @@ void loop() {
 
     servo.write(s.manual_angle);
   } else {
-    analogWrite(AO_MOTOR_POW, (int)power);
+    digitalWrite(DO_MOTOR_DIR, auto_power < 0);
+    analogWrite(AO_MOTOR_POW, abs((int)auto_power));
   }
 }

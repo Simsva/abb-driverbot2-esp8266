@@ -18,7 +18,10 @@ typedef struct {
 
 enum pv1_type {
   PV1_CONTROL=0,
-  PV1_COEFFICIENT_ALL,
+  PV1_PID_COEFFICIENT_ALL,
+  PV1_PID_TARGET_SPEED,
+  PV1_SET_FLAGS,
+  PV1_UNSET_FLAGS,
 };
 
 void parse_packet(packet&, state&);

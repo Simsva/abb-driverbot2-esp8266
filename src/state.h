@@ -13,7 +13,7 @@ typedef struct state {
   int16_t manual_speed = 0;
   uint8_t manual_angle = 90;
 
-  unsigned int flags = STATE_MANUAL_CONTROL;
+  uint32_t flags = STATE_MANUAL_CONTROL;
 } state;
 
 #endif // STATE_H_

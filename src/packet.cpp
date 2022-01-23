@@ -12,13 +12,25 @@ void parse_packet_v1(packet& p, state& s) {
       s.manual_angle = *(uint8_t*)(p.payload+sizeof(int16_t));
       break;
 
-    case PV1_COEFFICIENT_ALL:
+    case PV1_PID_COEFFICIENT_ALL:
     {
       double *tmp = (double*)p.payload;
       s.kp = bereal64toh(tmp[0]);
       s.ki = bereal64toh(tmp[1]);
       s.kd = bereal64toh(tmp[2]);
     }
+      break;
+
+    case PV1_PID_TARGET_SPEED:
+      s.auto_target_speed = bereal64toh(*(double*)p.payload);
+      break;
+
+    case PV1_SET_FLAGS:
+      s.flags |= be32toh(*(uint32_t*)p.payload);
+      break;
+
+    case PV1_UNSET_FLAGS:
+      s.flags &= ~be32toh(*(uint32_t*)p.payload);
       break;
 
     default:
