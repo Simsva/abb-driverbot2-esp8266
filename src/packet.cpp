@@ -53,13 +53,38 @@ void parse_packet(packet& p, state& s) {
   }
 }
 
+/*
+** Packet format:
+**  1 byte     - SOP
+**  1 byte     - Version (unsigned)
+**  1 byte     - Type (unsigned)
+**  2 byte     - Size (unsigned big endian)
+**  Size bytes - Payload
+ */
 void parse_char(packet& p, int& bytes_read, state& s, char ch) {
   Serial.printf("Recv char: %c (%02x)", ch, ch);
-  if(bytes_read) {
-    if(bytes_read < 3) {
-      // Automatically convert from big endian
-      ((char*)&p.size)[2-bytes_read] = ch;
-      Serial.printf(" siz %d\n", p.size);
+  if(bytes_read == 0) {
+    if(ch == SOP) {
+      Serial.println(" sop");
+      p.head = p.payload;
+    } else {
+      Serial.println(" nul");
+      --bytes_read;
+    }
+  } else if(bytes_read == 1) {
+    Serial.println(" ver");
+    p.version = ch;
+  } else if(bytes_read == 2) {
+    Serial.println(" typ");
+    p.type = ch;
+  } else if(bytes_read < 5) {
+    Serial.println(" siz");
+    ((char*)&p.size)[bytes_read-3] = ch;
+    if(bytes_read == 4) {
+      // Convert from big endian
+      p.size = be16toh(p.size);
+      Serial.printf("Packet size: %d\n", p.size);
+
       if(p.size > MAX_PACKET_SIZE-1) {
         Serial.println("Packet size is too big");
         p.head = p.payload;
@@ -67,30 +92,18 @@ void parse_char(packet& p, int& bytes_read, state& s, char ch) {
         bytes_read = 0;
         return;
       }
-    } else if(bytes_read == 3) {
-      Serial.println(" ver");
-      p.version = ch;
-    } else if(bytes_read == 4) {
-      Serial.println(" typ");
-      p.type = ch;
-    } else {
-      *(p.head++) = ch;
-      if(bytes_read - 2 >= p.size) {
-        Serial.println(" las");
-        bytes_read = 0;
-        *p.head = '\0';
-        parse_packet(p, s);
-        return;
-      } else {
-        Serial.println(" pay");
-      }
     }
-    ++bytes_read;
-  } else if(ch == SOP) {
-    Serial.println(" sop");
-    bytes_read = 1;
-    p.head = p.payload;
   } else {
-    Serial.println(" nul");
+    *(p.head++) = ch;
+    if(bytes_read - 4 >= p.size) {
+      Serial.println(" las");
+      bytes_read = 0;
+      *p.head = '\0';
+      parse_packet(p, s);
+      return;
+    } else {
+      Serial.println(" pay");
+    }
   }
+  ++bytes_read;
 }

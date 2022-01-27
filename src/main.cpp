@@ -81,8 +81,8 @@ void loop() {
   }
 
   if(timer_info < millis()-99) {
-    Serial.printf("plot: %llu,%f,%f,%f,%d,%f\n",
-                  pulse_count, delta_time/1e3, pulse_per_second, speed, (int)auto_power, s.auto_target_speed);
+    Serial.printf("plot: %llu,%f,%f,%f,%d,%f,%d,%f\n",
+                  pulse_count, delta_time/1e3, pulse_per_second, speed, (int)auto_power, s.auto_target_speed, s.manual_speed, abs(speed));
     Serial.printf("manual=%d speed=%4d (%d) angle=%3d kp=%6.3f ki=%6.3f kd=%6.3f\n",
                   s.flags&STATE_MANUAL_CONTROL, s.manual_speed, s.manual_speed<0, s.manual_angle, s.kp, s.ki, s.kd);
     timer_info = millis();
